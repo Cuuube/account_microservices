@@ -3,7 +3,7 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import Db from './db';
 import config from '../config';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 class Server {
     private app = express();
@@ -17,11 +17,11 @@ class Server {
 
     setting () {
         let app = this.app;
-        app.use(cookieParser());
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({
-            extended: true
+            extended: false
         }));
+        app.use(cookieParser());
         app.use(function (req, res, next) {
             // 最好限制为服务器才能请求
             res.header('Access-Control-Allow-Origin', '*');
@@ -40,7 +40,7 @@ class Server {
 
     bindRoute () {
         let app = this.app;
-        app.get(config.findAccountPath, async (req, res) => {
+        app.get(config.findAccountPath, async (req: Request, res: Response) => {
             let params = req.params;
             try {
                 let dbRes = await this.db.find(params);
@@ -50,7 +50,7 @@ class Server {
             }
         })
         
-        app.post(config.registerPath, async (req, res) => {
+        app.post(config.registerPath, async (req: Request, res: Response) => {
             // todo
             let data = req.body.data;
             try {
@@ -62,7 +62,7 @@ class Server {
             
         })
 
-        app.put(config.updatePath, async (req, res) => {
+        app.put(config.updatePath, async (req: Request, res: Response) => {
             // todo
             let params = req.body.params;
             let data = req.body.data;
@@ -74,7 +74,7 @@ class Server {
             }
         })
 
-        app.delete(config.deleteAccountPath, async (req, res) => {
+        app.delete(config.deleteAccountPath, async (req: Request, res: Response) => {
             // todo
             let params = req.body.data;
             try {

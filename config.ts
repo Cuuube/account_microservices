@@ -6,8 +6,8 @@ export default {
     // server config
     registerPath: '/register',
     updatePath: '/update_account',
-    findAccountPath: '/account/:id',
-    deleteAccountPath: '/remove_account/:id',
+    findAccountPath: '/account',
+    deleteAccountPath: '/remove_account',
 
     port: '9000',
 }
