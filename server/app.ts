@@ -3,6 +3,7 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import Db from './db';
 import config from '../config';
+import { Response } from 'express';
 
 class Server {
     private app = express();
@@ -22,6 +23,7 @@ class Server {
             extended: true
         }));
         app.use(function (req, res, next) {
+            // 最好限制为服务器才能请求
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
             res.header("Access-Control-Allow-Credentials", "true");    
@@ -38,23 +40,56 @@ class Server {
 
     bindRoute () {
         let app = this.app;
-        app.get(config.findAccountPath, (req, res) => {
-            // todo
+        app.get(config.findAccountPath, async (req, res) => {
+            let params = req.params;
+            try {
+                let dbRes = await this.db.find(params);
+                res.json(dbRes);
+            } catch (e) {
+                this.errorHandle(e, res);
+            }
         })
         
-        app.post(config.registerPath, (req, res) => {
+        app.post(config.registerPath, async (req, res) => {
             // todo
+            let data = req.body.data;
+            try {
+                await this.db.add(data);
+                res.json({code: 1, msg: 'register Success!'});
+            } catch (e) {
+                this.errorHandle(e, res);
+            }
+            
         })
 
-        app.put(config.updatePath, (req, res) => {
+        app.put(config.updatePath, async (req, res) => {
             // todo
+            let params = req.body.params;
+            let data = req.body.data;
+            try {
+                await this.db.update(params, data);
+                res.json({code: 1, msg: 'Update Success!'});
+            } catch (e) {
+                this.errorHandle(e, res);
+            }
         })
 
-        app.delete(config.deleteAccountPath, (req, res) => {
+        app.delete(config.deleteAccountPath, async (req, res) => {
             // todo
+            let params = req.body.data;
+            try {
+                await this.db.remove(params);
+                res.json({code: 1, msg: 'Delete Success!'});
+            } catch (e) {
+                this.errorHandle(e, res);
+            }
         })
 
         return this;
+    }
+
+    errorHandle (e: any, res: Response) {
+        res.status(500).json({code: 0, msg: e.msg || 'error'});
     }
 
     run () {
