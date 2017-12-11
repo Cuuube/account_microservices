@@ -1,6 +1,6 @@
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import * as cookieParser from 'cookie-parser';
+import express  = require('express');
+import bodyParser  = require('body-parser');
+import cookieParser  = require('cookie-parser');
 import Db from './db';
 import config from '../config';
 import { Request, Response } from 'express';
@@ -21,6 +21,7 @@ class Server {
         app.use(bodyParser.urlencoded({
             extended: false
         }));
+        // app.use(multer());
         app.use(cookieParser());
         app.use(function (req, res, next) {
             // 最好限制为服务器才能请求
@@ -46,7 +47,7 @@ class Server {
                 let dbRes = await this.db.find(params);
                 res.json(dbRes);
             } catch (e) {
-                this.errorHandle(e, res);
+                res.status(500).json({code: 0, msg: e.message || 'error'});
             }
         })
         
@@ -57,7 +58,8 @@ class Server {
                 await this.db.add(data);
                 res.json({code: 1, msg: 'register Success!'});
             } catch (e) {
-                this.errorHandle(e, res);
+                console.log({code: 0, msg: e.message || 'error'});
+                res.status(400).json({code: 0, msg: e.message || 'error'});
             }
             
         })
@@ -70,7 +72,7 @@ class Server {
                 await this.db.update(params, data);
                 res.json({code: 1, msg: 'Update Success!'});
             } catch (e) {
-                this.errorHandle(e, res);
+                res.status(400).json({code: 0, msg: e.message || 'error'});
             }
         })
 
@@ -81,15 +83,11 @@ class Server {
                 await this.db.remove(params);
                 res.json({code: 1, msg: 'Delete Success!'});
             } catch (e) {
-                this.errorHandle(e, res);
+                res.status(500).json({code: 0, msg: e.message || 'error'});
             }
         })
 
         return this;
-    }
-
-    errorHandle (e: any, res: Response) {
-        res.status(500).json({code: 0, msg: e.msg || 'error'});
     }
 
     run () {

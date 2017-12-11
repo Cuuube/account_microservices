@@ -23,7 +23,7 @@ export default class Db {
         return new Promise((resolve, reject) => {
             schema.save((err: Error) => {
                 if (err) {
-                    reject(err)
+                    reject(err);
                 } else {
                     resolve();
                 };
